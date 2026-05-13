@@ -12,8 +12,10 @@
 
 class PieceStorage {
 public:
-    PieceStorage(const TorrentFile& torrent_file,
-                 const std::filesystem::path& output_directory);
+    PieceStorage(
+        const TorrentFile& torrent_file,
+        const std::filesystem::path& output_directory
+    );
 
     PiecePtr GetNextPieceToDownload();
     void PieceProcessed(const PiecePtr& piece);
@@ -46,3 +48,4 @@ private:
     size_t total_piece_count;
     TorrentFile torrent_file;
 };
+

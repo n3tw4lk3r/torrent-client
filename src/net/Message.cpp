@@ -37,5 +37,8 @@ std::string Message::ToString() const {
     std::string message_id;
     unsigned char ch = static_cast<uint8_t>(id) & 0xFF;
     message_id += ch;
-    return utils::Int32ToBytes(static_cast<int>(message_length)) + message_id + payload;
+    return utils::Int32ToBytes(
+        static_cast<int>(message_length)
+    ) + message_id + payload;
 }
+

@@ -29,8 +29,11 @@ ftxui::Component TorrentUi::BuildUi() {
     });
 
     auto component = CatchEvent(renderer, [](Event event) {
-        if (event == Event::Character('q') || event == Event::Character('Q') ||
-            event == Event::Escape) {
+        if (
+            event == Event::Character('q')
+            || event == Event::Character('Q')
+            || event == Event::Escape
+        ) {
             return false;
         }
 
@@ -41,9 +44,13 @@ ftxui::Component TorrentUi::BuildUi() {
 }
 
 std::string FormatDuration(std::chrono::seconds duration) {
-    auto hours = std::chrono::duration_cast<std::chrono::hours>(duration);
+    auto hours = std::chrono::duration_cast<std::chrono::hours>(
+        duration
+    );
     duration -= hours;
-    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration);
+    auto minutes = std::chrono::duration_cast<std::chrono::minutes>(
+        duration
+    );
     duration -= minutes;
     auto seconds = duration;
 
@@ -58,17 +65,23 @@ std::string FormatDuration(std::chrono::seconds duration) {
     return oss.str();
 }
 
-std::string FormatRemainingTime(uint64_t downloaded, uint64_t total_size,
-                                uint64_t download_speed) {
+std::string FormatRemainingTime(
+    uint64_t downloaded,
+    uint64_t total_size,
+    uint64_t download_speed
+) {
     if (download_speed == 0 || downloaded >= total_size) {
         return "--:--";
     }
 
     uint64_t remaining_bytes = total_size - downloaded;
-    double remaining_seconds = static_cast<double>(remaining_bytes) / download_speed;
+    double remaining_seconds = static_cast<double>(remaining_bytes)
+        / download_speed;
 
     auto hours = static_cast<int>(remaining_seconds / 3600);
-    auto minutes = static_cast<int>((remaining_seconds - hours * 3600) / 60);
+    auto minutes = static_cast<int>((remaining_seconds - hours * 3600)
+        / 60
+    );
     auto seconds = static_cast<int>(remaining_seconds) % 60;
 
     std::ostringstream oss;
@@ -93,20 +106,22 @@ ftxui::Element TorrentUi::Render() {
     Color status_color = Color::GrayLight;
 
     switch (task.status) {
-        case TorrentStatus::kDownloading:
-            status_color = Color::GreenLight;
-            break;
-        case TorrentStatus::kCompleted:
-            status_color = Color::CyanLight;
-            break;
-        case TorrentStatus::kError:
-            status_color = Color::RedLight;
-            break;
-        case TorrentStatus::kStopped:
-            status_color = Color::YellowLight;
-            break;
-        default:
-            status_color = Color::GrayLight;
+
+    case TorrentStatus::kDownloading:
+        status_color = Color::GreenLight;
+        break;
+    case TorrentStatus::kCompleted:
+        status_color = Color::CyanLight;
+        break;
+    case TorrentStatus::kError:
+        status_color = Color::RedLight;
+        break;
+    case TorrentStatus::kStopped:
+        status_color = Color::YellowLight;
+        break;
+    default:
+        status_color = Color::GrayLight;
+    
     }
 
     Elements task_info;
@@ -141,7 +156,11 @@ ftxui::Element TorrentUi::Render() {
         task_info.push_back(hbox({
             filler(),
             text("Downloaded: ") | bold,
-            text(task.GetFormattedDownloaded() + " / " + task.GetFormattedSize()),
+            text(
+                task.GetFormattedDownloaded()
+                + " / "
+                + task.GetFormattedSize()
+            ),
             filler()
         }));
     }
@@ -164,7 +183,9 @@ ftxui::Element TorrentUi::Render() {
     task_info.push_back(text(""));
 
     const int kBarWidth = 50;
-    int filled = static_cast<int>((task.progress / 100.0) * kBarWidth);
+    int filled = static_cast<int>((task.progress / 100.0)
+        * kBarWidth
+    );
     int percentage = static_cast<int>(task.progress);
 
     std::string progress_bar;
@@ -185,8 +206,12 @@ ftxui::Element TorrentUi::Render() {
         }) | center,
         hbox({
             filler(),
-            text("Pieces: " + std::to_string(task.downloaded_pieces_count) +
-                 "/" + std::to_string(task.total_pieces_count)) | dim,
+            text(
+                "Pieces: "
+                + std::to_string(task.downloaded_pieces_count)
+                + "/"
+                + std::to_string(task.total_pieces_count)
+            ) | dim,
             filler()
         })
     });
@@ -245,9 +270,11 @@ void TorrentUi::Run() {
     std::atomic<bool> should_exit {false};
 
     component = component | ftxui::CatchEvent([&](ftxui::Event event) {
-        if (event == ftxui::Event::Character('q') ||
-            event == ftxui::Event::Character('Q') ||
-            event == ftxui::Event::Escape) {
+        if (
+            event == ftxui::Event::Character('q')
+            || event == ftxui::Event::Character('Q')
+            || event == ftxui::Event::Escape
+        ) {
             should_exit = true;
             screen.Exit();
             return true;
@@ -270,3 +297,4 @@ void TorrentUi::Run() {
         update_thread.join();
     }
 }
+

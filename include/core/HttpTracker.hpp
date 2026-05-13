@@ -12,9 +12,11 @@ class HttpTracker {
 public:
     explicit HttpTracker(const std::string& url);
 
-    void UpdatePeers(const TorrentFile& torrent_file,
-                     const std::string& peer_id,
-                     int port);
+    void UpdatePeers(
+        const TorrentFile& torrent_file,
+        const std::string& peer_id,
+        int port
+    );
 
     const std::vector<Peer>& GetPeers() const;
     std::string GetTrackerUrl() const;
@@ -37,20 +39,29 @@ private:
     bool IsUdpTracker(const std::string& url) const;
     std::pair<std::string, int> ParseUdpUrl(const std::string& url);
     Peer ConvertTrackerPeer(const UdpTracker::TrackerPeer& tracker_peer);
-    void UpdatePeersHttp(const TorrentFile& torrent_file,
-                         const std::string& peer_id,
-                         int port,
-                         const std::string& url);
-    void UpdatePeersUdp(const TorrentFile& torrent_file,
-                        const std::string& peer_id,
-                        int port,
-                        const std::string& url);
+
+    void UpdatePeersHttp(
+        const TorrentFile& torrent_file,
+        const std::string& peer_id,
+        int port,
+        const std::string& url
+    );
+
+    void UpdatePeersUdp(
+        const TorrentFile& torrent_file,
+        const std::string& peer_id,
+        int port,
+        const std::string& url
+    );
+    
     void ParseTrackerResponse(const std::string& response);
     void ParseTrackerResponse(const std::string& response, const std::string& url);
     void ParseCompactPeers(const std::string& peers_data);
     void ParseCompactBinaryPeers(const std::string& peers_data);
     void ParseDictionaryPeers(const std::string& peers_data);
 
+private:
     std::string tracker_url;
     std::vector<Peer> peers;
 };
+

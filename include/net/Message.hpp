@@ -26,3 +26,4 @@ struct Message {
     static Message Init(MessageId id, const std::string& payload);
     std::string ToString() const;
 };
+

@@ -75,3 +75,4 @@ std::chrono::nanoseconds Timer::Elapsed() const {
 
     return elapsed_time + (clock::now() - start_point);
 }
+

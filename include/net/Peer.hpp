@@ -6,3 +6,4 @@ struct Peer {
     std::string ip;
     int port;
 };
+

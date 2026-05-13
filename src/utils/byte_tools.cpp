@@ -9,14 +9,10 @@ std::int32_t utils::BytesToInt32(std::string_view bytes) {
         throw std::runtime_error("BytesToInt32: not enough bytes");
     }
 
-    return (static_cast<std::uint32_t>(
-                static_cast<unsigned char>(bytes[0])) << 24) |
-           (static_cast<std::uint32_t>(
-                static_cast<unsigned char>(bytes[1])) << 16) |
-           (static_cast<std::uint32_t>(
-                static_cast<unsigned char>(bytes[2])) << 8) |
-           (static_cast<std::uint32_t>(
-                static_cast<unsigned char>(bytes[3])));
+    return (static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[0])) << 24) |
+           (static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[1])) << 16) |
+           (static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[2])) << 8)  |
+            static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[3]));
 }
 
 std::string utils::Int32ToBytes(std::int32_t value) {
@@ -32,9 +28,10 @@ std::string utils::Int32ToBytes(std::int32_t value) {
 std::string utils::CalculateSha1(std::string_view msg) {
     unsigned char hash[SHA_DIGEST_LENGTH];
 
-    SHA1(reinterpret_cast<const unsigned char*>(msg.data()),
-         msg.size(),
-         hash);
+    SHA1(
+        reinterpret_cast<const unsigned char*>(msg.data()),
+        msg.size(),
+        hash);
 
     return std::string(reinterpret_cast<char*>(hash), SHA_DIGEST_LENGTH);
 }
@@ -46,9 +43,9 @@ std::string utils::HexEncode(std::string_view input) {
     result.resize(input.size() * 2);
 
     for (size_t i = 0; i < input.size(); ++i) {
-        unsigned char c = static_cast<unsigned char>(input[i]);
-        result[(i << 1)] = hex_table[c >> 4];
-        result[(i << 1) | 1] = hex_table[c & 0x0F];
+        unsigned char ch = static_cast<unsigned char>(input[i]);
+        result[(i << 1)] = hex_table[ch >> 4];
+        result[(i << 1) | 1] = hex_table[ch & 0x0F];
     }
 
     return result;
@@ -80,3 +77,4 @@ std::uint64_t utils::BytesToInt64(std::string_view bytes) {
 std::string utils::BytesToHex(std::string_view bytes) {
     return HexEncode(bytes);
 }
+

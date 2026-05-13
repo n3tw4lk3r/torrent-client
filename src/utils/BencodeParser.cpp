@@ -56,7 +56,10 @@ std::string utils::BencodeParser::Process() {
         return "";
     }
 
-    throw std::runtime_error("Invalid bencode character: " + std::string(1, current_char));
+    throw std::runtime_error(
+        "Invalid bencode character: "
+        + std::string(1, current_char)
+    );
 }
 
 void utils::BencodeParser::ProcessDict() {
@@ -113,7 +116,9 @@ void utils::BencodeParser::ProcessList() {
 
 utils::BencodeParser::BencodeParser() : index(0) {}
 
-std::vector<std::string> utils::BencodeParser::ParseFromFile(const std::string& filename) {
+std::vector<std::string> utils::BencodeParser::ParseFromFile(
+    const std::string& filename
+) {
     std::ifstream input_file(filename, std::ios::binary);
 
     if (!input_file.is_open()) {
@@ -135,7 +140,9 @@ std::vector<std::string> utils::BencodeParser::ParseFromFile(const std::string& 
     return parsed;
 }
 
-std::vector<std::string> utils::BencodeParser::ParseFromString(std::string str) {
+std::vector<std::string> utils::BencodeParser::ParseFromString(
+    std::string str
+) {
     to_decode = std::move(str);
 
     parsed.clear();
@@ -161,7 +168,11 @@ std::vector<std::string> utils::BencodeParser::GetPieceHashes() {
             std::string pieces_data = parsed[i + 1];
 
             constexpr size_t kHashSize = 20;
-            for (size_t j = 0; j + kHashSize <= pieces_data.size(); j += kHashSize) {
+            for (
+                size_t j = 0;
+                j + kHashSize <= pieces_data.size();
+                j += kHashSize
+            ) {
                 pieces_hashes.push_back(pieces_data.substr(j, kHashSize));
             }
 
@@ -171,3 +182,4 @@ std::vector<std::string> utils::BencodeParser::GetPieceHashes() {
 
     return pieces_hashes;
 }
+

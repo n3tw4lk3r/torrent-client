@@ -3,8 +3,10 @@
 #include <algorithm>
 #include <stdexcept>
 
-PieceStorage::PieceStorage(const TorrentFile& torrent_file,
-                           const std::filesystem::path& output_directory) :
+PieceStorage::PieceStorage(
+    const TorrentFile& torrent_file,
+    const std::filesystem::path& output_directory
+) :
       output_directory(output_directory),
       default_piece_length(torrent_file.piece_length),
       total_piece_count(torrent_file.piece_hashes.size()),
@@ -159,3 +161,4 @@ void PieceStorage::CloseOutputFile() {
         file.close();
     }
 }
+

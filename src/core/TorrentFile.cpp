@@ -48,3 +48,4 @@ TorrentFile LoadTorrentFile(const std::string& filename) {
     result.piece_hashes = bencode_parser.GetPieceHashes();
     return result;
 }
+

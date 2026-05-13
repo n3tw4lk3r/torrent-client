@@ -16,3 +16,4 @@ std::string HexEncode(std::string_view input);
 std::string BytesToHex(std::string_view bytes);
 
 } // namespace utils
+

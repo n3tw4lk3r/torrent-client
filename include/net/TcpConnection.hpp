@@ -13,9 +13,13 @@
 
 class TcpConnection {
 public:
-    explicit TcpConnection(std::string ip, int port, 
-                           std::chrono::milliseconds connect_timeout, 
-                           std::chrono::milliseconds read_timeout);
+    explicit TcpConnection(
+        std::string ip,
+        int port, 
+        std::chrono::milliseconds connect_timeout, 
+        std::chrono::milliseconds read_timeout
+    );
+
     ~TcpConnection();
 
     void EstablishConnection();
@@ -35,3 +39,4 @@ private:
     mutable std::atomic<bool> force_close{false};
     mutable int socket_fd;
 };
+

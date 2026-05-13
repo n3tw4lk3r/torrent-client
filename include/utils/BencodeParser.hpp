@@ -4,6 +4,7 @@
 #include <vector>
 
 namespace utils {
+
 class BencodeParser {
 public:
     BencodeParser();
@@ -27,4 +28,6 @@ private:
     std::vector<std::string> pieces_hashes;
     size_t index;
 };
+
 } // namespace utils
+

@@ -22,14 +22,16 @@ public:
 
     UdpTracker(const std::string& host, int port, int timeout_sec = 5);
 
-    TrackerResponse Announce(const std::string& info_hash,
-                             const std::string& peer_id,
-                             uint64_t downloaded,
-                             uint64_t left,
-                             uint64_t uploaded,
-                             int event,
-                             int wanted_number,
-                             uint16_t port);
+    TrackerResponse Announce(
+        const std::string& info_hash,
+        const std::string& peer_id,
+        uint64_t downloaded,
+        uint64_t left,
+        uint64_t uploaded,
+        int event,
+        int wanted_number,
+        uint16_t port
+    );
 
 private:
     std::string host;
@@ -40,13 +42,16 @@ private:
 
     uint64_t Connect();
 
-    TrackerResponse AnnounceWithConnection(uint64_t connection_id,
-                                           const std::string& info_hash,
-                                           const std::string& peer_id,
-                                           uint64_t downloaded,
-                                           uint64_t left,
-                                           uint64_t uploaded,
-                                           int event,
-                                           int wanted_number,
-                                           uint16_t port);
+    TrackerResponse AnnounceWithConnection(
+        uint64_t connection_id,
+        const std::string& info_hash,
+        const std::string& peer_id,
+        uint64_t downloaded,
+        uint64_t left,
+        uint64_t uploaded,
+        int event,
+        int wanted_number,
+        uint16_t port
+    );
+
 };

@@ -4,9 +4,12 @@
 
 #include "utils/byte_tools.hpp"
 
-TcpConnection::TcpConnection(std::string ip, int port,
-                             std::chrono::milliseconds connect_timeout,
-                             std::chrono::milliseconds read_timeout) :
+TcpConnection::TcpConnection(
+    std::string ip,
+    int port,
+    std::chrono::milliseconds connect_timeout,
+    std::chrono::milliseconds read_timeout
+) :
       ip(std::move(ip)),
       port(port),
       connect_timeout(connect_timeout),
@@ -48,12 +51,29 @@ void TcpConnection::EstablishConnection() {
 
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd == -1) {
-        throw std::runtime_error("Failed to create socket: " + std::string(strerror(errno)));
+        throw std::runtime_error(
+            "Failed to create socket: "
+            + std::string(strerror(errno))
+        );
     }
 
     int buffer_size = 512 * 1024;
-    setsockopt(socket_fd, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size));
-    setsockopt(socket_fd, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof(buffer_size));
+    
+    setsockopt(
+        socket_fd,
+        SOL_SOCKET,
+        SO_RCVBUF,
+        &buffer_size,
+        sizeof(buffer_size)
+    );
+
+    setsockopt(
+        socket_fd,
+        SOL_SOCKET,
+        SO_SNDBUF,
+        &buffer_size,
+        sizeof(buffer_size)
+    );
 
     struct sockaddr_in server;
     server.sin_addr.s_addr = inet_addr(ip.c_str());
@@ -65,7 +85,13 @@ void TcpConnection::EstablishConnection() {
 
     int current_state = fcntl(socket_fd, F_GETFL, 0);
     fcntl(socket_fd, F_SETFL, current_state | O_NONBLOCK);
-    int code = connect(socket_fd, (struct sockaddr*) &server, sizeof(struct sockaddr_in));
+    
+    int code = connect(
+        socket_fd,
+        reinterpret_cast<struct sockaddr*>(&server),
+        sizeof(struct sockaddr_in)
+    );
+
     if (code == 0) {
         current_state = fcntl(socket_fd, F_GETFL, 0);
         fcntl(socket_fd, F_SETFL, current_state & ~O_NONBLOCK);
@@ -74,34 +100,41 @@ void TcpConnection::EstablishConnection() {
 
     FD_ZERO(&fdset);
     FD_SET(socket_fd, &fdset);
-    time_val.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(connect_timeout).count();
+    
+    time_val.tv_sec = std::chrono::duration_cast<std::chrono::seconds>(
+        connect_timeout
+    ).count();
+    
     time_val.tv_usec = 0;
 
     code = select(socket_fd + 1, nullptr, &fdset, nullptr, &time_val);
+    
     switch (code) {
-        case 0:
-            close(socket_fd);
-            socket_fd = -1;
-            throw std::runtime_error("Connection timeout");
-            break;
 
-        case 1:
-        default: {
-            int so_error;
-            socklen_t len = sizeof(so_error);
-            getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, &so_error, &len);
+    case 0:
+        close(socket_fd);
+        socket_fd = -1;
+        throw std::runtime_error("Connection timeout");
+        break;
 
-            if (so_error == 0) {
-                current_state = fcntl(socket_fd, F_GETFL, 0);
-                fcntl(socket_fd, F_SETFL, current_state & ~O_NONBLOCK);
-                return;
-            }
+    case 1:
+    default: {
+        int so_error;
+        socklen_t len = sizeof(so_error);
+        getsockopt(socket_fd, SOL_SOCKET, SO_ERROR, &so_error, &len);
 
-            close(socket_fd);
-            socket_fd = -1;
-            throw std::runtime_error("Socket connection error");
-            break;
+        if (so_error == 0) {
+            current_state = fcntl(socket_fd, F_GETFL, 0);
+            fcntl(socket_fd, F_SETFL, current_state & ~O_NONBLOCK);
+            return;
         }
+
+        close(socket_fd);
+        socket_fd = -1;
+        throw std::runtime_error("Socket connection error");
+        break;
+    }
+    
     }
 }
 
@@ -132,35 +165,37 @@ std::string TcpConnection::ReceiveData(size_t buffer_size) const {
         }
 
         switch (code) {
-            case -1:
+
+        case -1:
+            if (!force_close.load()) {
+                throw std::runtime_error("Poll error");
+            }
+            throw std::runtime_error("Connection terminated");
+            break;
+
+        case 0:
+            return "";
+            break;
+
+        default: {
+            char data[4];
+            int received = recv(socket_fd, data, sizeof(data), 0);
+            if (received <= 0) {
                 if (!force_close.load()) {
-                    throw std::runtime_error("Poll error");
+                    throw std::runtime_error("Read error");
                 }
                 throw std::runtime_error("Connection terminated");
-                break;
-
-            case 0:
-                return "";
-                break;
-
-            default: {
-                char data[4];
-                int received = recv(socket_fd, data, sizeof(data), 0);
-                if (received <= 0) {
-                    if (!force_close.load()) {
-                        throw std::runtime_error("Read error");
-                    }
-                    throw std::runtime_error("Connection terminated");
-                }
-                message.append(data, received);
-                break;
             }
+            message.append(data, received);
+            break;
+        }
+
         }
 
         buffer_size = utils::BytesToInt32(message);
     }
 
-    if (buffer_size > 100000) {
+    if (buffer_size > 100'000) {
         throw std::runtime_error("Too much data");
     }
 
@@ -196,3 +231,4 @@ const std::string& TcpConnection::GetIp() const {
 int TcpConnection::GetPort() const {
     return port;
 }
+

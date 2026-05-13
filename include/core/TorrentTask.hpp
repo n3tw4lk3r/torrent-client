@@ -39,15 +39,17 @@ struct TorrentTask {
     size_t total_pieces_count;
     size_t downloaded_pieces_count;
     
-    TorrentTask() : status(TorrentStatus::kNoTorrent),
-                    progress(0.0),
-                    total_size(0),
-                    downloaded(0),
-                    uploaded(0),
-                    connected_peers(0),
-                    total_peers_count(0),
-                    total_pieces_count(0),
-                    downloaded_pieces_count(0) {}
+    TorrentTask() :
+        status(TorrentStatus::kNoTorrent),
+        progress(0.0),
+        total_size(0),
+        downloaded(0),
+        uploaded(0),
+        connected_peers(0),
+        total_peers_count(0),
+        total_pieces_count(0),
+        downloaded_pieces_count(0)
+    {}
     
     void SetConnectedPeers(int new_count);
     std::string GetFormattedSize() const;
@@ -56,6 +58,11 @@ struct TorrentTask {
     std::string GetStatusString() const;
     std::string GetPeersString() const;
     std::string FormatBytes(uint64_t bytes) const;
-    void UpdateFromPieceStorage(const class PieceStorage& storage, 
-                                size_t default_piece_length);
+
+    void UpdateFromPieceStorage(
+        const class PieceStorage& storage, 
+        size_t default_piece_length
+    );
+
 };
+

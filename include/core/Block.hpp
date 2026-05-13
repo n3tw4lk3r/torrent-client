@@ -15,3 +15,4 @@ struct Block {
     Status status;
     std::string data;
 };
+

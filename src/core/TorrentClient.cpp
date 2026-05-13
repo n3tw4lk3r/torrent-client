@@ -57,29 +57,45 @@ bool TorrentClient::IsStopRequested() const {
     return stop_requested;
 }
 
-bool TorrentClient::RunDownloadMultithread(PieceStorage& pieces,
-                                           const TorrentFile& torrent_file,
-                                           const HttpTracker& tracker) {
-
+bool TorrentClient::RunDownloadMultithread(
+    PieceStorage& pieces,
+    const TorrentFile& torrent_file,
+    const HttpTracker& tracker
+) {
     using namespace std::chrono_literals;
     UpdateTaskStatus(TorrentStatus::kDownloading);
     UpdateTaskFromTracker(tracker);
-    AddLogMessage("Starting download with " + std::to_string(tracker.GetPeers().size()) + " peers");
+    
+    AddLogMessage(
+        "Starting download with "
+        + std::to_string(tracker.GetPeers().size())
+        + " peers"
+    );
 
     peer_connections.clear();
 
     std::vector<std::thread> peer_threads;
-
     for (const Peer& peer : tracker.GetPeers()) {
         if (stop_requested) {
             break;
         }
         try {
-            auto connection = std::make_shared<PeerConnection>(peer, torrent_file, peer_id, pieces);
+            auto connection = std::make_shared<PeerConnection>(
+                peer,
+                torrent_file,
+                peer_id,
+                pieces
+            );
+
             peer_connections.emplace_back(connection);
-        } catch (const std::exception& e) {
-            std::string error_msg = "Failed to connect to " + peer.ip + ":" +
-                                   std::to_string(peer.port) + " - " + e.what();
+        } catch (const std::exception& error) {
+            std::string error_msg =
+                "Failed to connect to "
+                + peer.ip
+                + ":"
+                + std::to_string(peer.port)
+                + " - "
+                + error.what();
             AddLogMessage(error_msg);
         }
     }
@@ -126,7 +142,11 @@ bool TorrentClient::RunDownloadMultithread(PieceStorage& pieces,
         return false;
     }
 
-    AddLogMessage("Started " + std::to_string(peer_threads.size()) + " peer threads");
+    AddLogMessage(
+        "Started "
+        + std::to_string(peer_threads.size())
+        + " peer threads"
+    );
 
     const size_t target_pieces = pieces.TotalPiecesCount();
 
@@ -163,12 +183,21 @@ bool TorrentClient::RunDownloadMultithread(PieceStorage& pieces,
 
         if (!endgame_mode && missing_count <= kPiecesLeftToEnterEndgame) {
             endgame_mode = true;
-            AddLogMessage("Entering endgame mode - " + std::to_string(missing_count) + " pieces remaining");
+            AddLogMessage(
+                "Entering endgame mode - "
+                + std::to_string(missing_count)
+                + " pieces remaining"
+            );
         }
 
         if (endgame_mode && pieces.QueueIsEmpty()) {
             if (now - last_requeue_time > requeue_interval) {
-                AddLogMessage("Endgame: requeuing " + std::to_string(missing_count) + " missing pieces");
+                AddLogMessage(
+                    "Endgame: requeuing "
+                    + std::to_string(missing_count)
+                    + " missing pieces"
+                );
+
                 pieces.ForceRequeueMissingPieces();
                 last_requeue_time = now;
             }
@@ -209,7 +238,10 @@ bool TorrentClient::RunDownloadMultithread(PieceStorage& pieces,
     return !pieces.IsDownloadComplete() && !stop_requested;
 }
 
-void TorrentClient::DownloadFromTracker(const TorrentFile& torrent_file, PieceStorage& pieces) {
+void TorrentClient::DownloadFromTracker(
+    const TorrentFile& torrent_file,
+    PieceStorage& pieces
+) {
     using namespace std::chrono_literals;
     UpdateTaskStatus(TorrentStatus::kConnected);
     AddLogMessage("Connecting to trackers...");
@@ -247,16 +279,26 @@ void TorrentClient::DownloadFromTracker(const TorrentFile& torrent_file, PieceSt
         }
 
         std::vector<Peer> all_peers;
-        for (size_t i = 0; i < trackers.size() && !stop_requested && !is_terminated; ++i) {
+        for (
+            size_t i = 0;
+            i < trackers.size() && !stop_requested && !is_terminated;
+            ++i
+        ) {
             try {
                 HttpTracker tracker(trackers[i]);
                 AddLogMessage("Requesting peers from " + trackers[i] + "...");
+
                 tracker.UpdatePeers(torrent_file, peer_id, 12345);
                 const auto& peers = tracker.GetPeers();
                 all_peers.insert(all_peers.end(), peers.begin(), peers.end());
-                AddLogMessage("Got " + std::to_string(peers.size()) + " peers from " + trackers[i] );
-            } catch (const std::exception& e) {
-                AddLogMessage("Tracker " + trackers[i] + " error: " + e.what());
+
+                AddLogMessage(
+                    "Got "
+                    + std::to_string(peers.size())
+                    + " peers from " + trackers[i]
+                );
+            } catch (const std::exception& error) {
+                AddLogMessage("Tracker " + trackers[i] + " error: " + error.what());
             }
         }
 
@@ -265,12 +307,15 @@ void TorrentClient::DownloadFromTracker(const TorrentFile& torrent_file, PieceSt
         }
 
         if (!all_peers.empty()) {
-            std::sort(all_peers.begin(), all_peers.end(), [](const Peer& a, const Peer& b) {
+            auto cmp = [](const Peer& a, const Peer& b) {
                 return a.ip < b.ip || (a.ip == b.ip && a.port < b.port);
-            });
-            auto last = std::unique(all_peers.begin(), all_peers.end(), [](const Peer& a, const Peer& b) {
+            };
+            std::sort(all_peers.begin(), all_peers.end(), cmp);
+            
+            auto equal = [](const Peer& a, const Peer& b) {
                 return a.ip == b.ip && a.port == b.port;
-            });
+            };
+            auto last = std::unique(all_peers.begin(), all_peers.end(), equal);
             all_peers.erase(last, all_peers.end());
         }
 
@@ -313,9 +358,16 @@ void TorrentClient::DownloadFromTracker(const TorrentFile& torrent_file, PieceSt
                 break;
             }
 
-            AddLogMessage("Retry " + std::to_string(retry_count) + "/" +
-                         std::to_string(max_retries) + " - " +
-                         std::to_string(pieces.GetMissingPieces().size()) + " pieces remaining");
+            AddLogMessage(
+                "Retry "
+                + std::to_string(retry_count)
+                + "/"
+                + std::to_string(max_retries)
+                + " - "
+                + std::to_string(pieces.GetMissingPieces().size())
+                + " pieces remaining"
+            );
+
             for (int i = 0; i < 150 && !stop_requested; ++i) {
                 std::this_thread::sleep_for(100ms);
             }
@@ -334,8 +386,10 @@ void TorrentClient::DownloadFromTracker(const TorrentFile& torrent_file, PieceSt
     }
 }
 
-void TorrentClient::DownloadTorrent(const std::filesystem::path& torrent_file_path,
-                                    const std::filesystem::path& output_directory) {
+void TorrentClient::DownloadTorrent(
+    const std::filesystem::path& torrent_file_path,
+    const std::filesystem::path& output_directory
+) {
     is_terminated = false;
     is_paused = false;
     stop_requested = false;
@@ -357,9 +411,15 @@ void TorrentClient::DownloadTorrent(const std::filesystem::path& torrent_file_pa
         current_task.last_update = std::chrono::system_clock::now();
     }
 
-    AddLogMessage("File: " + torrent_file.name + " (" +
-                  std::to_string(torrent_file.length) + " bytes, " +
-                  std::to_string(torrent_file.piece_hashes.size()) + " pieces)");
+    AddLogMessage(
+        "File: "
+        + torrent_file.name
+        + " ("
+        + std::to_string(torrent_file.length)
+        + " bytes, "
+        + std::to_string(torrent_file.piece_hashes.size())
+        + " pieces)"
+    );
 
     PieceStorage pieces(torrent_file, output_directory);
 
@@ -367,18 +427,24 @@ void TorrentClient::DownloadTorrent(const std::filesystem::path& torrent_file_pa
 
     try {
         DownloadFromTracker(torrent_file, pieces);
-    } catch (const std::exception& e) {
+    } catch (const std::exception& error) {
         UpdateTaskStatus(TorrentStatus::kError);
-        AddLogMessage("Download error: " + std::string(e.what()));
+        AddLogMessage("Download error: " + std::string(error.what()));
     }
 
     auto end_time = std::chrono::steady_clock::now();
 
     pieces.CloseOutputFile();
 
-    auto duration = std::chrono::duration_cast<std::chrono::seconds>(end_time - start_time);
+    auto duration = std::chrono::duration_cast<std::chrono::seconds>(
+        end_time - start_time
+    );
 
-    AddLogMessage("Download finished in " + std::to_string(duration.count()) + " seconds");
+    AddLogMessage(
+        "Download finished in "
+        + std::to_string(duration.count())
+        + " seconds"
+    );
 }
 
 void TorrentClient::AddLogMessage(const std::string& message) {
@@ -387,12 +453,21 @@ void TorrentClient::AddLogMessage(const std::string& message) {
     auto now = std::chrono::system_clock::now();
     auto time = std::chrono::system_clock::to_time_t(now);
     char time_string[20];
-    std::strftime(time_string, sizeof(time_string), "[%H:%M:%S]", std::localtime(&time));
+    
+    std::strftime(
+        time_string,
+        sizeof(time_string),
+        "[%H:%M:%S]",
+        std::localtime(&time)
+    );
 
     log_messages.push_back(std::string(time_string) + " " + message);
 
     if (log_messages.size() > 1000) {
-        log_messages.erase(log_messages.begin(), log_messages.begin() + 500);
+        log_messages.erase(
+            log_messages.begin(),
+            log_messages.begin() + 500
+        );
     }
 }
 
@@ -401,7 +476,9 @@ TorrentTask TorrentClient::GetCurrentTask() const {
     return current_task;
 }
 
-std::vector<std::string> TorrentClient::GetLogMessages(size_t max_count) const {
+std::vector<std::string> TorrentClient::GetLogMessages(
+    size_t max_count
+) const {
     std::lock_guard<std::mutex> lock(log_mutex);
 
     if (log_messages.size() <= max_count) {
@@ -420,11 +497,15 @@ void TorrentClient::UpdateTaskStatus(TorrentStatus status) {
     current_task.last_update = std::chrono::system_clock::now();
 }
 
-void TorrentClient::UpdateTaskFromPieceStorage(const PieceStorage& storage) {
+void TorrentClient::UpdateTaskFromPieceStorage(
+    const PieceStorage& storage
+) {
     std::lock_guard<std::mutex> lock(task_mutex);
     size_t new_piece_length;
     if (current_task.total_pieces_count > 0) {
-        new_piece_length = current_task.total_size / current_task.total_pieces_count;
+        new_piece_length =
+            current_task.total_size
+            / current_task.total_pieces_count;
     } else {
         new_piece_length = 0;
     }
@@ -470,3 +551,4 @@ std::chrono::seconds TorrentClient::ElapsedTime() const {
     auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(timer.Elapsed());
     return elapsed;
 }
+

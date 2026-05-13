@@ -34,3 +34,4 @@ private:
 };
 
 using PiecePtr = std::shared_ptr<Piece>;
+

@@ -14,3 +14,4 @@ struct TorrentFile {
 };
 
 TorrentFile LoadTorrentFile(const std::string& filename);
+

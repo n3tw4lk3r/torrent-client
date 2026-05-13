@@ -26,3 +26,4 @@ private:
     ftxui::Component BuildUi();
     ftxui::Element Render();
 };
+

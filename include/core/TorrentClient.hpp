@@ -17,8 +17,10 @@ public:
     explicit TorrentClient(const std::string& peer_id = "TESTAPPDONTWORRY");
     ~TorrentClient();
 
-    void DownloadTorrent(const std::filesystem::path& torrent_file_path,
-                         const std::filesystem::path& output_directory);
+    void DownloadTorrent(
+        const std::filesystem::path& torrent_file_path,
+        const std::filesystem::path& output_directory
+    );
 
     const std::string& GetPeerId() const { return peer_id; }
     void SetPeerId(const std::string& new_peer_id) { peer_id = new_peer_id; }
@@ -54,10 +56,18 @@ private:
     void UpdateTaskFromTracker(const HttpTracker& tracker);
 
     std::string GenerateRandomSuffix(size_t length = 4);
-    bool RunDownloadMultithread(PieceStorage& pieces,
-                                const TorrentFile& torrent_file,
-                                const HttpTracker& tracker);
-    void DownloadFromTracker(const TorrentFile& torrent_file,
-                             PieceStorage& pieces);
+
+    bool RunDownloadMultithread(
+        PieceStorage& pieces,
+        const TorrentFile& torrent_file,
+        const HttpTracker& tracker
+    );
+
+    void DownloadFromTracker(
+        const TorrentFile& torrent_file,
+        PieceStorage& pieces
+    );
+
     void CleanupConnections();
 };
+

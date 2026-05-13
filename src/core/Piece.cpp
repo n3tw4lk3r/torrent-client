@@ -13,7 +13,12 @@ Piece::Piece(size_t index, size_t length, const std::string& hash) :
     size_t offset = 0;
     while (offset < length) {
         size_t block_length = std::min(Block::kSize, length - offset);
-        blocks.push_back(Block{index, offset, block_length, Block::Status::kMissing, ""});
+        blocks.push_back(Block{
+            index,
+            offset,
+            block_length,
+            Block::Status::kMissing, ""
+        });
         offset += block_length;
     }
 }
@@ -48,8 +53,11 @@ void Piece::SaveBlock(size_t block_offset, std::string block_data) {
     for (auto& block : blocks) {
         if (block.offset == block_offset) {
             if (block.status != Block::Status::kPending) {
-                throw std::runtime_error("Block at offset " + std::to_string(block_offset) +
-                                         " is not in pending state");
+                throw std::runtime_error(
+                    "Block at offset "
+                    + std::to_string(block_offset)
+                    + " is not in pending state"
+                );
             }
 
             block.data = std::move(block_data);
@@ -58,13 +66,18 @@ void Piece::SaveBlock(size_t block_offset, std::string block_data) {
             return;
         }
     }
-    throw std::runtime_error("Block not found at offset " + std::to_string(block_offset));
+
+    throw std::runtime_error(
+        "Block not found at offset "
+        + std::to_string(block_offset)
+    );
 }
 
 bool Piece::AllBlocksRetrieved() const {
-    return std::all_of(blocks.begin(), blocks.end(), [](const Block& block) {
+    auto is_retreived = [](const Block& block) {
         return block.status == Block::Status::kRetrieved;
-    });
+    };
+    return std::all_of(blocks.begin(), blocks.end(), is_retreived);
 }
 
 std::string Piece::GetData() const {
@@ -99,9 +112,10 @@ void Piece::Reset() {
 }
 
 bool Piece::IsDownloading() const {
-    return std::any_of(blocks.begin(), blocks.end(), [](const Block& block) {
+    auto is_downloading = [](const Block& block) {
         return block.status == Block::Status::kPending;
-    });
+    };
+    return std::any_of(blocks.begin(), blocks.end(), is_downloading);
 }
 
 bool Piece::IsComplete() const {
@@ -115,3 +129,4 @@ size_t Piece::GetLength() const {
 size_t Piece::GetBytesDownloaded() const {
     return bytes_downloaded;
 }
+

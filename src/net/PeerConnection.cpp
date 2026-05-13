@@ -7,46 +7,56 @@
 
 using namespace std::chrono_literals;
 
-PeerConnection::PeerPiecesAvailability::PeerPiecesAvailability(std::string bitfield, size_t size) :
+PeerConnection::PeerPiecesAvailability::PeerPiecesAvailability(
+    std::string bitfield,
+    size_t size
+) :
     bitfield(std::move(bitfield)),
     size(size)
 {}
 
-bool PeerConnection::PeerPiecesAvailability::IsPieceAvailable(size_t index) const {
+bool PeerConnection::PeerPiecesAvailability::IsPieceAvailable(
+    size_t index
+) const {
     if (index >= size * 8) {
         return false;
     }
     return (bitfield[index >> 3] >> (7 - (index & 7))) & 1;
 }
 
-void PeerConnection::PeerPiecesAvailability::SetPieceAvailability(size_t index) {
+void PeerConnection::PeerPiecesAvailability::SetPieceAvailability(
+    size_t index
+) {
     if (index < size * 8) {
         bitfield[index >> 3] |= (1 << (7 - (index & 7)));
     }
 }
 
-PeerConnection::PeerConnection(const Peer& peer,
-                               const TorrentFile& torrent_file,
-                               std::string self_peer_id,
-                               PieceStorage& piece_storage)
-    : torrent_file(torrent_file),
-      socket(peer.ip, peer.port, 3500ms, 3500ms),
-      self_peer_id(std::move(self_peer_id)),
-      piece_storage(piece_storage) {}
+PeerConnection::PeerConnection(
+    const Peer& peer,
+    const TorrentFile& torrent_file,
+    std::string self_peer_id,
+    PieceStorage& piece_storage
+) : 
+    torrent_file(torrent_file),
+    socket(peer.ip, peer.port, 3500ms, 3500ms),
+    self_peer_id(std::move(self_peer_id)),
+    piece_storage(piece_storage)
+{}
 
 void PeerConnection::Run() {
-    int failures = 0;
+    int failures_cnt = 0;
 
-    while (!is_terminated && failures < 10) {
+    while (!is_terminated && failures_cnt < 10) {
         try {
             if (EstablishConnection()) {
-                failures = 0;
+                failures_cnt = 0;
                 MainLoop();
             } else {
-                ++failures;
+                ++failures_cnt;
             }
         } catch (...) {
-            ++failures;
+            ++failures_cnt;
             HandleConnectionError();
         }
     }
@@ -90,7 +100,9 @@ void PeerConnection::ReceiveBitfield() {
 }
 
 void PeerConnection::SendInterested() {
-    socket.SendData(Message::Init(MessageId::kInterested, "").ToString());
+    socket.SendData(
+        Message::Init(MessageId::kInterested, "").ToString()
+    );
 }
 
 void PeerConnection::MainLoop() {
@@ -105,7 +117,10 @@ void PeerConnection::MainLoop() {
             continue;
         }
 
-        while (!is_choked && inflight_offsets.size() < kMaxInflightBlocks) {
+        while (
+            !is_choked
+            && inflight_offsets.size() < kMaxInflightBlocks
+        ) {
             auto block = piece_in_progress->GetFirstMissingBlock();
             if (!block) {
                 break;
@@ -146,42 +161,44 @@ void PeerConnection::ProcessMessage(const std::string& data) {
     auto msg = Message::Parse(data);
 
     switch (msg.id) {
-        case MessageId::kUnchoke:
-            is_choked = false;
-            break;
 
-        case MessageId::kChoke:
-            is_choked = true;
-            inflight_offsets.clear();
-            break;
+    case MessageId::kUnchoke:
+        is_choked = false;
+        break;
 
-        case MessageId::kHave: {
-            size_t index = utils::BytesToInt32(msg.payload);
-            pieces_availability.SetPieceAvailability(index);
-            break;
-        }
+    case MessageId::kChoke:
+        is_choked = true;
+        inflight_offsets.clear();
+        break;
 
-        case MessageId::kPiece: {
-            size_t index = utils::BytesToInt32(msg.payload.substr(0, 4));
-            size_t offset = utils::BytesToInt32(msg.payload.substr(4, 4));
-            auto block = msg.payload.substr(8);
+    case MessageId::kHave: {
+        size_t index = utils::BytesToInt32(msg.payload);
+        pieces_availability.SetPieceAvailability(index);
+        break;
+    }
 
-            if (piece_in_progress && piece_in_progress->GetIndex() == index) {
+    case MessageId::kPiece: {
+        size_t index = utils::BytesToInt32(msg.payload.substr(0, 4));
+        size_t offset = utils::BytesToInt32(msg.payload.substr(4, 4));
+        auto block = msg.payload.substr(8);
 
-                piece_in_progress->SaveBlock(offset, block);
-                inflight_offsets.erase(offset);
+        if (piece_in_progress && piece_in_progress->GetIndex() == index) {
 
-                if (piece_in_progress->AllBlocksRetrieved()) {
-                    piece_storage.PieceProcessed(piece_in_progress);
-                    piece_in_progress.reset();
-                    inflight_offsets.clear();
-                }
+            piece_in_progress->SaveBlock(offset, block);
+            inflight_offsets.erase(offset);
+
+            if (piece_in_progress->AllBlocksRetrieved()) {
+                piece_storage.PieceProcessed(piece_in_progress);
+                piece_in_progress.reset();
+                inflight_offsets.clear();
             }
-            break;
         }
+        break;
+    }
 
-        default:
-            break;
+    default:
+        break;
+    
     }
 }
 
@@ -216,3 +233,4 @@ std::string PeerConnection::GetPeerId() const {
 bool PeerConnection::Failed() const {
     return has_failed;
 }
+

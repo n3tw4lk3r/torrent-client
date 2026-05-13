@@ -10,10 +10,12 @@
 
 class PeerConnection {
 public:
-    PeerConnection(const Peer& peer,
-                   const TorrentFile& torrent_file,
-                   std::string self_peer_id,
-                   PieceStorage& piece_storage);
+    PeerConnection(
+        const Peer& peer,
+        const TorrentFile& torrent_file,
+        std::string self_peer_id,
+        PieceStorage& piece_storage
+    );
 
     void Run();
     void Terminate();
@@ -62,3 +64,4 @@ private:
     std::atomic<bool> is_terminated = false;
     bool has_failed = false;
 };
+

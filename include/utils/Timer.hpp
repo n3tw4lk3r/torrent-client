@@ -27,3 +27,4 @@ private:
     clock::time_point start_point;
     std::chrono::nanoseconds elapsed_time;
 };
+

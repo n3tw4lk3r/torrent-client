@@ -6,10 +6,12 @@
 #include "core/TorrentClient.hpp"
 #include "ui/TorrentUi.hpp"
 
-void DownloadThreadFunction(TorrentClient* client,
-                            const std::filesystem::path& torrent_file_path,
-                            const std::filesystem::path& output_directory,
-                            std::promise<bool>& download_promise) {
+void DownloadThreadFunction(
+    TorrentClient* client,
+    const std::filesystem::path& torrent_file_path,
+    const std::filesystem::path& output_directory,
+    std::promise<bool>& download_promise
+) {
     try {
         client->DownloadTorrent(torrent_file_path, output_directory);
         if (client->IsStopRequested()) {
@@ -17,15 +19,19 @@ void DownloadThreadFunction(TorrentClient* client,
         } else {
             download_promise.set_value(true);
         }
-    } catch (const std::exception& e) {
-        std::cerr << "Download error: " << e.what() << std::endl;
+    } catch (const std::exception& error) {
+        std::cerr << "Download error: " << error.what() << std::endl;
         download_promise.set_exception(std::current_exception());
     }
 }
 
 int main(int argc, char* argv[]) {
     if (argc != 3) {
-        std::cout << "Usage: " << argv[0] << " <torrent-file> <output-directory>" << std::endl;
+        std::cerr
+            << "Usage: "
+            << argv[0]
+            << " <torrent-file> <output-directory>"
+            << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -33,7 +39,10 @@ int main(int argc, char* argv[]) {
     std::filesystem::path output_directory = argv[2];
     
     if (!std::filesystem::exists(torrent_file_path)) {
-        std::cerr << "Error: Torrent file not found: " << torrent_file_path << std::endl;
+        std::cerr
+            << "Error: Torrent file not found: "
+            << torrent_file_path
+            << std::endl;
         return EXIT_FAILURE;
     }
     
@@ -46,13 +55,16 @@ int main(int argc, char* argv[]) {
         TorrentClient* client_raw = client.get();
         
         std::promise<bool> download_promise;
-        std::future<bool> download_future = download_promise.get_future();
+        std::future<bool> download_future =
+            download_promise.get_future();
         
-        std::thread download_thread(DownloadThreadFunction, 
-                                    client_raw, 
-                                    torrent_file_path, 
-                                    output_directory,
-                                    std::ref(download_promise));
+        std::thread download_thread(
+            DownloadThreadFunction, 
+            client_raw, 
+            torrent_file_path, 
+            output_directory,
+            std::ref(download_promise)
+        );
         
         TorrentUi torrent_ui(std::move(client));
         torrent_ui.Run();
@@ -66,19 +78,27 @@ int main(int argc, char* argv[]) {
         try {
             bool download_success = download_future.get();
             if (download_success) {
-                std::cout << "Download completed successfully!" << std::endl;
+                std::cout
+                    << "Download completed successfully!"
+                    << std::endl;
                 return EXIT_SUCCESS;
             } else {
-                std::cout << "Download stopped by user (Q was pressed)" << std::endl;
+                std::cerr
+                    << "Download stopped by user (Q was pressed)"
+                    << std::endl;
                 return EXIT_FAILURE;
             }
-        } catch (const std::exception& e) {
-            std::cerr << "Download failed with error: " << e.what() << std::endl;
+        } catch (const std::exception& error) {
+            std::cerr
+                << "Download failed with error: "
+                << error.what()
+                << std::endl;
             return EXIT_FAILURE;
         }
         
-    } catch (const std::exception& e) {
-        std::cerr << "Error: " << e.what() << std::endl;
+    } catch (const std::exception& error) {
+        std::cerr << "Error: " << error.what() << std::endl;
         return EXIT_FAILURE;
     }
 }
+
