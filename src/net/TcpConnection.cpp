@@ -51,9 +51,9 @@ void TcpConnection::EstablishConnection() {
         throw std::runtime_error("Failed to create socket: " + std::string(strerror(errno)));
     }
 
-    int buffer = 512 * 1024;
-    setsockopt(socket_fd, SOL_SOCKET, SO_RCVBUF, &buffer, sizeof(buffer));
-    setsockopt(socket_fd, SOL_SOCKET, SO_SNDBUF, &buffer, sizeof(buffer));
+    int buffer_size = 512 * 1024;
+    setsockopt(socket_fd, SOL_SOCKET, SO_RCVBUF, &buffer_size, sizeof(buffer_size));
+    setsockopt(socket_fd, SOL_SOCKET, SO_SNDBUF, &buffer_size, sizeof(buffer_size));
 
     struct sockaddr_in server;
     server.sin_addr.s_addr = inet_addr(ip.c_str());
