@@ -52,8 +52,8 @@ void TcpConnection::EstablishConnection() {
     socket_fd = socket(AF_INET, SOCK_STREAM, 0);
     if (socket_fd == -1) {
         throw std::runtime_error(
-            "Failed to create socket: "
-            + std::string(strerror(errno))
+            "Failed to create socket: " +
+            std::string(strerror(errno))
         );
     }
 

@@ -57,8 +57,8 @@ std::string utils::BencodeParser::Process() {
     }
 
     throw std::runtime_error(
-        "Invalid bencode character: "
-        + std::string(1, current_char)
+        "Invalid bencode character: " +
+        std::string(1, current_char)
     );
 }
 
@@ -95,8 +95,10 @@ void utils::BencodeParser::ProcessDict() {
 
     if (start_index != -1 && end_index != -1) {
         info_hash = CalculateSha1(
-            std::string_view(to_decode.data() + start_index,
-                             end_index - start_index)
+            std::string_view(
+                to_decode.data() + start_index,
+                end_index - start_index
+            )
         );
     }
 }

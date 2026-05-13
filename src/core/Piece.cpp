@@ -54,9 +54,9 @@ void Piece::SaveBlock(size_t block_offset, std::string block_data) {
         if (block.offset == block_offset) {
             if (block.status != Block::Status::kPending) {
                 throw std::runtime_error(
-                    "Block at offset "
-                    + std::to_string(block_offset)
-                    + " is not in pending state"
+                    "Block at offset " +
+                    std::to_string(block_offset) +
+                    " is not in pending state"
                 );
             }
 
@@ -68,8 +68,8 @@ void Piece::SaveBlock(size_t block_offset, std::string block_data) {
     }
 
     throw std::runtime_error(
-        "Block not found at offset "
-        + std::to_string(block_offset)
+        "Block not found at offset " +
+        std::to_string(block_offset)
     );
 }
 

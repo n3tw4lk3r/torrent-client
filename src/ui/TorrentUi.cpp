@@ -30,9 +30,9 @@ ftxui::Component TorrentUi::BuildUi() {
 
     auto component = CatchEvent(renderer, [](Event event) {
         if (
-            event == Event::Character('q')
-            || event == Event::Character('Q')
-            || event == Event::Escape
+            event == Event::Character('q') ||
+            event == Event::Character('Q') ||
+            event == Event::Escape
         ) {
             return false;
         }
@@ -207,10 +207,10 @@ ftxui::Element TorrentUi::Render() {
         hbox({
             filler(),
             text(
-                "Pieces: "
-                + std::to_string(task.downloaded_pieces_count)
-                + "/"
-                + std::to_string(task.total_pieces_count)
+                "Pieces: " +
+                std::to_string(task.downloaded_pieces_count) +
+                "/" +
+                std::to_string(task.total_pieces_count)
             ) | dim,
             filler()
         })

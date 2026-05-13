@@ -59,8 +59,8 @@ uint64_t UdpTracker::Connect() {
 
     if (response.size() < 16) {
         throw std::runtime_error(
-            "CONNECT response too small: "
-            + std::to_string(response.size())
+            "CONNECT response too small: " +
+            std::to_string(response.size())
         );
     }
 
@@ -69,8 +69,8 @@ uint64_t UdpTracker::Connect() {
 
     if (resp_action != 0) {
         throw std::runtime_error(
-            "CONNECT failed: action="
-            + std::to_string(resp_action)
+            "CONNECT failed: action=" +
+            std::to_string(resp_action)
         );
     }
 
@@ -130,8 +130,8 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
 
     if (response.size() < 20) {
         throw std::runtime_error(
-            "ANNOUNCE response too small: "
-            + std::to_string(response.size())
+            "ANNOUNCE response too small: " +
+            std::to_string(response.size())
         );
     }
 
@@ -145,8 +145,8 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
 
     if (resp_action != 1) {
         throw std::runtime_error(
-            "ANNOUNCE failed: wrong action="
-            + std::to_string(resp_action)
+            "ANNOUNCE failed: wrong action=" +
+            std::to_string(resp_action)
         );
     }
 
@@ -165,8 +165,8 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
 
         peer.ip = utils::BytesToInt32(response.substr(offset, 4));
         peer.port = static_cast<uint16_t>(
-            (static_cast<unsigned char>(response[offset + 4]) << 8)
-            | static_cast<unsigned char>(response[offset + 5])
+            (static_cast<unsigned char>(response[offset + 4]) << 8) |
+            static_cast<unsigned char>(response[offset + 5])
         );
 
         tracker_response.peers.push_back(peer);

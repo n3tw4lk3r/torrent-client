@@ -40,8 +40,8 @@ UdpConnection::UdpConnection(
         throw std::runtime_error(
             std::string(
                 "[UdpConnection] Failed to set SO_RCVTIMEO: "
-            )
-            + strerror(errno)
+            ) +
+            strerror(errno)
         );
     }
 
@@ -49,10 +49,10 @@ UdpConnection::UdpConnection(
     if (!server) {
         close(socket_fd);
         throw std::runtime_error(
-            "[UdpConnection] Failed to resolve host "
-            + host
-            + ": "
-            + std::string(hstrerror(h_errno))
+            "[UdpConnection] Failed to resolve host " +
+            host +
+            ": " +
+            std::string(hstrerror(h_errno))
         );
     }
 
@@ -84,21 +84,22 @@ std::string UdpConnection::SendReceive(const std::string& data) {
 
     if (sent < 0) {
         throw std::runtime_error(
-            "[UdpConnection] Send error to "
-            + host
-            + ":"
-            + std::to_string(port)
-            + ": "
-            + strerror(errno)
+            "[UdpConnection] Send error to " +
+            host +
+            ":" +
+            std::to_string(port) +
+            ": " +
+            strerror(errno)
         );
     }
 
     if (sent != static_cast<ssize_t>(data.size())) {
         throw std::runtime_error(
-            "[UdpConnection] Partial send: "
-            + std::to_string(sent)
-            + " of " + std::to_string(data.size())
-            + " bytes"
+            "[UdpConnection] Partial send: " +
+            std::to_string(sent) +
+            " of " +
+            std::to_string(data.size()) +
+            " bytes"
         );
     }
 
@@ -118,22 +119,22 @@ std::string UdpConnection::SendReceive(const std::string& data) {
     if (received < 0) {
         if (errno == EAGAIN || errno == EWOULDBLOCK) {
             throw std::runtime_error(
-                "[UdpConnection] Timeout waiting for response ("
-                + std::to_string(timeout_sec)
-                + "s) from "
-                + host
-                + ":"
-                + std::to_string(port)
+                "[UdpConnection] Timeout waiting for response (" +
+                std::to_string(timeout_sec) +
+                "s) from " +
+                host +
+                ":" +
+                std::to_string(port)
             );
         }
 
         throw std::runtime_error(
-            "[UdpConnection] Receive error from "
-            + host
-            + ":"
-            + std::to_string(port)
-            + ": "
-            + strerror(errno)
+            "[UdpConnection] Receive error from " +
+            host +
+            ":" +
+            std::to_string(port) +
+            ": " +
+            strerror(errno)
         );
     }
 

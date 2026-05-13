@@ -80,13 +80,12 @@ Peer HttpTracker::ConvertTrackerPeer(const UdpTracker::TrackerPeer& tracker_peer
     Peer peer;
 
     peer.ip =
-        std::to_string((tracker_peer.ip >> 24) & 0xFF)
-        + "."
-        + std::to_string((tracker_peer.ip >> 16) & 0xFF)
-        + "."
-        + std::to_string((tracker_peer.ip >> 8) & 0xFF)
-        + "."
-        + std::to_string(tracker_peer.ip & 0xFF);
+        std::to_string((tracker_peer.ip >> 24) & 0xFF) +
+        "." +
+        std::to_string((tracker_peer.ip >> 16) & 0xFF) + "." +
+        std::to_string((tracker_peer.ip >> 8) & 0xFF) +
+        "." +
+        std::to_string(tracker_peer.ip & 0xFF);
 
     peer.port = tracker_peer.port;
 
@@ -116,10 +115,10 @@ void HttpTracker::UpdatePeersHttp(
 
     if (tracker_response.status_code != 200) {
         throw std::runtime_error(
-            "HTTP "
-            + std::to_string(tracker_response.status_code)
-            + ": "
-            + tracker_response.error.message
+            "HTTP " +
+            std::to_string(tracker_response.status_code) +
+            ": " +
+            tracker_response.error.message
         );
     }
 
@@ -190,8 +189,8 @@ void HttpTracker::ParseTrackerResponse(
 
     if (peers_data.empty()) {
         throw std::runtime_error(
-            "No peers data in tracker response from "
-            + url
+            "No peers data in tracker response from " +
+            url
         );
     }
 
@@ -215,17 +214,17 @@ void HttpTracker::ParseCompactBinaryPeers(const std::string& peers_data) {
 
     for (size_t i = 0; i < peers_data.size(); i += kPeerSize) {
         std::string ip =
-            std::to_string(static_cast<uint8_t>(peers_data[i]))
-            + "."
-            + std::to_string(static_cast<uint8_t>(peers_data[i + 1]))
-            + "."
-            + std::to_string(static_cast<uint8_t>(peers_data[i + 2]))
-            + "."
-            + std::to_string(static_cast<uint8_t>(peers_data[i + 3]));
+            std::to_string(static_cast<uint8_t>(peers_data[i])) +
+            "." +
+            std::to_string(static_cast<uint8_t>(peers_data[i + 1])) +
+            "." +
+            std::to_string(static_cast<uint8_t>(peers_data[i + 2])) +
+            "." +
+            std::to_string(static_cast<uint8_t>(peers_data[i + 3]));
 
         int port = (
-            static_cast<uint8_t>(peers_data[i + 4]) << 8)
-            | static_cast<uint8_t>(peers_data[i + 5]
+            static_cast<uint8_t>(peers_data[i + 4]) << 8) |
+            static_cast<uint8_t>(peers_data[i + 5]
         );
 
         peers.emplace_back(Peer{ip, port});
