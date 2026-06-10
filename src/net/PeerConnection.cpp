@@ -172,14 +172,14 @@ void PeerConnection::ProcessMessage(const std::string& data) {
         break;
 
     case MessageId::kHave: {
-        size_t index = utils::BytesToInt32(msg.payload);
+        size_t index = utils::bytes_to_int32_t(msg.payload);
         pieces_availability.SetPieceAvailability(index);
         break;
     }
 
     case MessageId::kPiece: {
-        size_t index = utils::BytesToInt32(msg.payload.substr(0, 4));
-        size_t offset = utils::BytesToInt32(msg.payload.substr(4, 4));
+        size_t index = utils::bytes_to_int32_t(msg.payload.substr(0, 4));
+        size_t offset = utils::bytes_to_int32_t(msg.payload.substr(4, 4));
         auto block = msg.payload.substr(8);
 
         if (piece_in_progress && piece_in_progress->GetIndex() == index) {
@@ -204,9 +204,9 @@ void PeerConnection::ProcessMessage(const std::string& data) {
 
 void PeerConnection::RequestBlock(const Block* block) {
     std::string payload;
-    payload += utils::Int32ToBytes(block->piece);
-    payload += utils::Int32ToBytes(block->offset);
-    payload += utils::Int32ToBytes(block->length);
+    payload += utils::int32_t_to_bytes(block->piece);
+    payload += utils::int32_t_to_bytes(block->offset);
+    payload += utils::int32_t_to_bytes(block->length);
     socket.SendData(Message::Init(MessageId::kRequest, payload).ToString());
 }
 

@@ -29,7 +29,7 @@ bool Piece::HashMatches() const {
     }
 
     std::string piece_data = GetData();
-    std::string calculated_hash = utils::CalculateSha1(piece_data);
+    std::string calculated_hash = utils::calculate_sha1(piece_data);
     bool matches = (calculated_hash == hash);
 
     return matches;
@@ -96,7 +96,7 @@ std::string Piece::GetData() const {
 }
 
 std::string Piece::GetDataHash() const {
-    return utils::CalculateSha1(GetData());
+    return utils::calculate_sha1(GetData());
 }
 
 std::string Piece::GetHash() const {

@@ -9,7 +9,7 @@ Message Message::Parse(const std::string& message_string) {
         throw std::runtime_error("Message too short to parse");
     }
     
-    size_t length = utils::BytesToInt32(message_string.substr(0, 4));
+    size_t length = utils::bytes_to_int32_t(message_string.substr(0, 4));
     if (length == 0) {
         return { MessageId::kKeepAlive, 0, "" };
     }
@@ -37,7 +37,7 @@ std::string Message::ToString() const {
     std::string message_id;
     unsigned char ch = static_cast<uint8_t>(id) & 0xFF;
     message_id += ch;
-    return utils::Int32ToBytes(
+    return utils::int32_t_to_bytes(
         static_cast<int>(message_length)
     ) + message_id + payload;
 }

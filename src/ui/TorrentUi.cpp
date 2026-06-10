@@ -20,9 +20,7 @@ void TorrentUi::Run() {
             break;
         }
 
-        std::this_thread::sleep_for(
-            500ms
-        );
+        std::this_thread::sleep_for(500ms);
     }
 }
 

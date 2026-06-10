@@ -192,7 +192,7 @@ std::string TcpConnection::ReceiveData(size_t buffer_size) const {
 
         }
 
-        buffer_size = utils::BytesToInt32(message);
+        buffer_size = utils::bytes_to_int32_t(message);
     }
 
     if (buffer_size > 100'000) {

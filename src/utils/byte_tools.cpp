@@ -4,7 +4,7 @@
 
 #include "utils/Sha1.hpp"
 
-std::int32_t utils::BytesToInt32(std::string_view bytes) {
+std::int32_t utils::bytes_to_int32_t(std::string_view bytes) {
     if (bytes.size() < 4) {
         throw std::runtime_error("BytesToInt32: not enough bytes");
     }
@@ -15,7 +15,7 @@ std::int32_t utils::BytesToInt32(std::string_view bytes) {
             static_cast<std::uint32_t>(static_cast<unsigned char>(bytes[3]));
 }
 
-std::string utils::Int32ToBytes(std::int32_t value) {
+std::string utils::int32_t_to_bytes(std::int32_t value) {
     std::string result(4, '\0');
     result[0] = static_cast<char>((value >> 24) & 0xFF);
     result[1] = static_cast<char>((value >> 16) & 0xFF);
@@ -25,7 +25,7 @@ std::string utils::Int32ToBytes(std::int32_t value) {
     return result;
 }
 
-std::string utils::CalculateSha1(std::string_view msg) {
+std::string utils::calculate_sha1(std::string_view msg) {
     Sha1 sha;
     sha.Update(reinterpret_cast<const uint8_t*>(msg.data()), msg.size());
 
@@ -33,7 +33,7 @@ std::string utils::CalculateSha1(std::string_view msg) {
     return std::string(reinterpret_cast<const char*>(digest.data()), digest.size());
 }
 
-std::string utils::HexEncode(std::string_view input) {
+std::string utils::hex_encode(std::string_view input) {
     static constexpr char hex_table[] = "0123456789abcdef";
 
     std::string result;
@@ -48,7 +48,7 @@ std::string utils::HexEncode(std::string_view input) {
     return result;
 }
 
-std::string utils::Int64ToBytes(std::uint64_t value) {
+std::string utils::uint64_t_to_bytes(std::uint64_t value) {
     std::string result(8, '\0');
     for (int i = 7; i >= 0; --i) {
         result[i] = static_cast<unsigned char>(value & 0xFF);
@@ -57,7 +57,7 @@ std::string utils::Int64ToBytes(std::uint64_t value) {
     return result;
 }
 
-std::uint64_t utils::BytesToInt64(std::string_view bytes) {
+std::uint64_t utils::bytes_to_uint64_t(std::string_view bytes) {
     if (bytes.size() < 8) {
         throw std::runtime_error("BytesToInt64: not enough bytes");
     }
@@ -71,7 +71,7 @@ std::uint64_t utils::BytesToInt64(std::string_view bytes) {
     return result;
 }
 
-std::string utils::BytesToHex(std::string_view bytes) {
-    return HexEncode(bytes);
+std::string utils::bytes_to_hex(std::string_view bytes) {
+    return hex_encode(bytes);
 }
 

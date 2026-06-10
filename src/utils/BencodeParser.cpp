@@ -94,7 +94,7 @@ void utils::BencodeParser::ProcessDict() {
     ++index;
 
     if (start_index != -1 && end_index != -1) {
-        info_hash = CalculateSha1(
+        info_hash = calculate_sha1(
             std::string_view(
                 to_decode.data() + start_index,
                 end_index - start_index

@@ -44,16 +44,16 @@ UdpTracker::TrackerResponse UdpTracker::Announce(
 uint64_t UdpTracker::Connect() {
     uint64_t protocol_id = 0x41727101980;
     uint32_t action = 0; // connect = 0
-    uint32_t transaction_id = utils::BytesToInt32(
-        utils::Int32ToBytes(rand())
+    uint32_t transaction_id = utils::bytes_to_int32_t(
+        utils::int32_t_to_bytes(rand())
     );
 
     std::string request;
     request.reserve(16);
 
-    request += utils::Int64ToBytes(protocol_id);
-    request += utils::Int32ToBytes(action);
-    request += utils::Int32ToBytes(transaction_id);
+    request += utils::uint64_t_to_bytes(protocol_id);
+    request += utils::int32_t_to_bytes(action);
+    request += utils::int32_t_to_bytes(transaction_id);
 
     std::string response = udp_client.SendReceive(request);
 
@@ -64,8 +64,8 @@ uint64_t UdpTracker::Connect() {
         );
     }
 
-    uint32_t resp_action = utils::BytesToInt32(response.substr(0, 4));
-    uint32_t resp_trans = utils::BytesToInt32(response.substr(4, 4));
+    uint32_t resp_action = utils::bytes_to_int32_t(response.substr(0, 4));
+    uint32_t resp_trans = utils::bytes_to_int32_t(response.substr(4, 4));
 
     if (resp_action != 0) {
         throw std::runtime_error(
@@ -78,7 +78,7 @@ uint64_t UdpTracker::Connect() {
         throw std::runtime_error("CONNECT transaction_id mismatch");
     }
 
-    uint64_t connection_id = utils::BytesToInt64(response.substr(8, 8));
+    uint64_t connection_id = utils::bytes_to_uint64_t(response.substr(8, 8));
 
     return connection_id;
 }
@@ -102,29 +102,29 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
     }
 
     uint32_t action = 1; // announce
-    uint32_t transaction_id = utils::BytesToInt32(
-        utils::Int32ToBytes(rand())
+    uint32_t transaction_id = utils::bytes_to_int32_t(
+        utils::int32_t_to_bytes(rand())
     );
 
     std::string request;
     request.reserve(98);
 
-    request += utils::Int64ToBytes(connection_id);
-    request += utils::Int32ToBytes(action);
-    request += utils::Int32ToBytes(transaction_id);
+    request += utils::uint64_t_to_bytes(connection_id);
+    request += utils::int32_t_to_bytes(action);
+    request += utils::int32_t_to_bytes(transaction_id);
     request += info_hash;
     request += peer_id;
-    request += utils::Int64ToBytes(downloaded);
-    request += utils::Int64ToBytes(left);
-    request += utils::Int64ToBytes(uploaded);
+    request += utils::uint64_t_to_bytes(downloaded);
+    request += utils::uint64_t_to_bytes(left);
+    request += utils::uint64_t_to_bytes(uploaded);
     
     // 0=none,1=completed,2=started,3=stopped
-    request += utils::Int32ToBytes(event);
+    request += utils::int32_t_to_bytes(event);
     
-    request += utils::Int32ToBytes(0); // IP = default
-    request += utils::Int32ToBytes(rand()); // key
-    request += utils::Int32ToBytes(num_want);
-    request += utils::Int32ToBytes(port << 16 | (port & 0xFFFF));
+    request += utils::int32_t_to_bytes(0); // IP = default
+    request += utils::int32_t_to_bytes(rand()); // key
+    request += utils::int32_t_to_bytes(num_want);
+    request += utils::int32_t_to_bytes(port << 16 | (port & 0xFFFF));
 
     std::string response = udp_client.SendReceive(request);
 
@@ -135,8 +135,8 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
         );
     }
 
-    uint32_t resp_action = utils::BytesToInt32(response.substr(0, 4));
-    uint32_t resp_trans  = utils::BytesToInt32(response.substr(4, 4));
+    uint32_t resp_action = utils::bytes_to_int32_t(response.substr(0, 4));
+    uint32_t resp_trans  = utils::bytes_to_int32_t(response.substr(4, 4));
 
     if (resp_action == 3) { // error
         std::string err_msg = response.substr(8);
@@ -155,15 +155,15 @@ UdpTracker::TrackerResponse UdpTracker::AnnounceWithConnection(
     }
 
     TrackerResponse tracker_response;
-    tracker_response.interval = utils::BytesToInt32(response.substr(8, 4));
-    tracker_response.leechers = utils::BytesToInt32(response.substr(12, 4));
-    tracker_response.seeders = utils::BytesToInt32(response.substr(16, 4));
+    tracker_response.interval = utils::bytes_to_int32_t(response.substr(8, 4));
+    tracker_response.leechers = utils::bytes_to_int32_t(response.substr(12, 4));
+    tracker_response.seeders = utils::bytes_to_int32_t(response.substr(16, 4));
 
     size_t offset = 20;
     while (offset + 6 <= response.size()) {
         TrackerPeer peer;
 
-        peer.ip = utils::BytesToInt32(response.substr(offset, 4));
+        peer.ip = utils::bytes_to_int32_t(response.substr(offset, 4));
         peer.port = static_cast<uint16_t>(
             (static_cast<unsigned char>(response[offset + 4]) << 8) |
             static_cast<unsigned char>(response[offset + 5])
