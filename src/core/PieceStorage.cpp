@@ -43,12 +43,16 @@ void PieceStorage::InitializeOutputFile() {
 
 PiecePtr PieceStorage::GetNextPieceToDownload() {
     std::lock_guard<std::mutex> lock(queue_mutex);
+
     if (remaining_pieces_queue.empty()) {
         return nullptr;
     }
 
     auto piece = remaining_pieces_queue.front();
     remaining_pieces_queue.pop();
+
+    active_pieces.insert(piece->GetIndex());
+
     return piece;
 }
 
@@ -62,13 +66,26 @@ void PieceStorage::Enqueue(const PiecePtr& piece) {
     }
 
     piece->Reset();
+
     std::lock_guard<std::mutex> lock(queue_mutex);
+
+    active_pieces.erase(piece->GetIndex());
     remaining_pieces_queue.push(piece);
 }
 
 void PieceStorage::PieceProcessed(const PiecePtr& piece) {
-    if (!piece || !piece->HashMatches()) {
-        return Enqueue(piece);
+    if (!piece) {
+        return;
+    }
+
+    {
+        std::lock_guard<std::mutex> lock(queue_mutex);
+        active_pieces.erase(piece->GetIndex());
+    }
+
+    if (!piece->HashMatches()) {
+        Enqueue(piece);
+        return;
     }
 
     SavePieceToDisk(piece);
@@ -104,7 +121,8 @@ bool PieceStorage::IsDownloadComplete() const {
 }
 
 bool PieceStorage::HasActiveWork() const {
-    return !QueueIsEmpty();
+    std::lock_guard<std::mutex> lock(queue_mutex);
+    return !remaining_pieces_queue.empty() || !active_pieces.empty();
 }
 
 size_t PieceStorage::TotalPiecesCount() const {
@@ -132,6 +150,8 @@ std::vector<size_t> PieceStorage::GetMissingPieces() const {
 void PieceStorage::ForceRequeueMissingPieces() {
     std::lock_guard<std::mutex> qlock(queue_mutex);
     std::lock_guard<std::mutex> flock(file_mutex);
+
+    active_pieces.clear();
 
     std::queue<PiecePtr> empty;
     std::swap(remaining_pieces_queue, empty);

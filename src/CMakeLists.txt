@@ -9,6 +9,7 @@ add_library(core STATIC
     net/HttpClient.cpp
     net/Message.cpp
     net/PeerConnection.cpp
+    net/PeerManager.cpp
     net/TcpConnection.cpp
     net/UdpConnection.cpp
     utils/BencodeParser.cpp

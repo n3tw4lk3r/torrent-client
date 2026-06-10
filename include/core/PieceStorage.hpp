@@ -42,6 +42,7 @@ private:
     mutable std::mutex file_mutex;
 
     std::unordered_set<size_t> saved_pieces;
+    std::unordered_set<size_t> active_pieces;
 
     std::filesystem::path output_directory;
     size_t default_piece_length;
