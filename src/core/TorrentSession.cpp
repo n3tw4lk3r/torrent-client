@@ -51,9 +51,9 @@ void TorrentSession::Start() {
 
 void TorrentSession::RunSession() {
     UpdateTaskStatus(TorrentStatus::kLoading);
-    Logger::LogUI("Loading torrent file: " + current_task.filename);
+    Logger::LogUi("Loading torrent file: " + current_task.filename);
 
-    Logger::LogUI(
+    Logger::LogUi(
         "File: " +
         torrent_file.name +
         " (" +
@@ -66,10 +66,10 @@ void TorrentSession::RunSession() {
     InitializeComponents(torrent_file);
 
     UpdateTaskStatus(TorrentStatus::kConnected);
-    Logger::LogUI("Connecting to trackers...");
+    Logger::LogUi("Connecting to trackers...");
 
     if (!tracker_manager->FetchInitialPeers(torrent_file)) {
-        Logger::LogUI("No peers found, unable to start download");
+        Logger::LogUi("No peers found, unable to start download");
         UpdateTaskStatus(TorrentStatus::kError);
         timer.Stop();
         CleanupComponents();
@@ -82,7 +82,7 @@ void TorrentSession::RunSession() {
         current_task.total_peers_count = static_cast<int>(peer_manager.Count());
     }
 
-    Logger::LogUI(
+    Logger::LogUi(
         "Starting download with " +
         std::to_string(peer_manager.Count()) +
         " peers"
@@ -101,7 +101,7 @@ void TorrentSession::RunSession() {
         download_monitor->WaitForCompletion();
     } catch (const std::exception& error) {
         UpdateTaskStatus(TorrentStatus::kError);
-        Logger::LogUI("Download error: " + std::string(error.what()));
+        Logger::LogUi("Download error: " + std::string(error.what()));
     }
 
     timer.Stop();
@@ -117,10 +117,10 @@ void TorrentSession::RunSession() {
 
     if (piece_storage->IsDownloadComplete()) {
         UpdateTaskStatus(TorrentStatus::kCompleted);
-        Logger::LogUI("Download completed successfully");
+        Logger::LogUi("Download completed successfully");
     } else {
         UpdateTaskStatus(TorrentStatus::kError);
-        Logger::LogUI("Download incomplete - missing pieces");
+        Logger::LogUi("Download incomplete - missing pieces");
     }
 
     if (piece_storage) {
@@ -129,7 +129,7 @@ void TorrentSession::RunSession() {
 
     is_finished = true;
 
-    Logger::LogUI("Session finished");
+    Logger::LogUi("Session finished");
 }
 
 void TorrentSession::InitializeComponents(const TorrentFile& tf) {

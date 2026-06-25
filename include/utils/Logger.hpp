@@ -13,7 +13,7 @@ public:
     Logger(const Logger&) = delete;
     Logger& operator=(const Logger&) = delete;
 
-    static void LogUI(std::string_view message);
+    static void LogUi(std::string_view message);
     static void LogError(std::string_view message);
     static std::vector<std::string> GetMessages(size_t max_count = 50);
 

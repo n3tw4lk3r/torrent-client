@@ -90,7 +90,7 @@ void PieceStorage::PieceProcessed(const PiecePtr& piece) {
     }
 
     if (!piece->HashMatches()) {
-        Logger::LogUI(
+        Logger::LogUi(
             "Piece " +
             std::to_string(piece->GetIndex()) +
             " hash mismatch, re-downloading"

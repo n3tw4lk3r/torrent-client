@@ -46,7 +46,7 @@ void DownloadMonitor::ManageEndgameMode(
 
     if (!endgame_mode && missing_count <= kEndgameThreshold) {
         endgame_mode = true;
-        Logger::LogUI(
+        Logger::LogUi(
             "Entering endgame mode - " +
             std::to_string(missing_count) +
             " pieces remaining"
@@ -56,7 +56,7 @@ void DownloadMonitor::ManageEndgameMode(
     if (endgame_mode && piece_storage.QueueIsEmpty()) {
         auto now = std::chrono::steady_clock::now();
         if (now - last_requeue_time > kRequeueInterval) {
-            Logger::LogUI(
+            Logger::LogUi(
                 "Endgame: requeuing " +
                 std::to_string(missing_count) +
                 " missing pieces"

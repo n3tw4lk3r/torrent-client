@@ -53,7 +53,7 @@ bool TrackerManager::TryAnnounceToTracker(
 ) {
     try {
         auto tracker = TrackerFactory::CreateTracker(std::string(url));
-        Logger::LogUI("Requesting peers from " + std::string(url) + "...");
+        Logger::LogUi("Requesting peers from " + std::string(url) + "...");
 
         auto peers = tracker->Announce(
             torrent_file,
@@ -67,7 +67,7 @@ bool TrackerManager::TryAnnounceToTracker(
 
         peer_manager.AddPeers(peers);
 
-        Logger::LogUI(
+        Logger::LogUi(
             "Got " +
             std::to_string(peers.size()) +
             " peers from " + std::string(url)
@@ -75,14 +75,14 @@ bool TrackerManager::TryAnnounceToTracker(
 
         return !peers.empty();
     } catch (const std::exception& error) {
-        Logger::LogUI("Tracker " + std::string(url) + " error: " + error.what());
+        Logger::LogUi("Tracker " + std::string(url) + " error: " + error.what());
         return false;
     }
 }
 
 bool TrackerManager::FetchInitialPeers(const TorrentFile& torrent_file) {
     tracker_urls = CollectTrackerUrls(torrent_file);
-    Logger::LogUI(
+    Logger::LogUi(
         "Using " +
         std::to_string(tracker_urls.size()) +
         " trackers"
@@ -109,7 +109,7 @@ void TrackerManager::BackgroundUpdateLoop(TorrentFile torrent_file) {
         size_t known_peers = peer_manager.Count();
 
         if (active_connections < 50 && known_peers < 200) {
-            Logger::LogUI(
+            Logger::LogUi(
                 "Requesting more peers (active: " +
                 std::to_string(active_connections) + "/50)..."
             );
@@ -119,7 +119,7 @@ void TrackerManager::BackgroundUpdateLoop(TorrentFile torrent_file) {
                     active_connections = peer_connector->ActiveConnectionCount();
                 }
                 if (active_connections >= 50) {
-                    Logger::LogUI(
+                    Logger::LogUi(
                         "Reached 50 active connections, stopping tracker requests"
                     );
                     break;
@@ -142,7 +142,7 @@ void TrackerManager::BackgroundUpdateLoop(TorrentFile torrent_file) {
                     auto after = peer_manager.Count();
 
                     if (after > before) {
-                        Logger::LogUI(
+                        Logger::LogUi(
                             "Discovered " +
                             std::to_string(after - before) +
                             " new peers from " +
@@ -151,20 +151,20 @@ void TrackerManager::BackgroundUpdateLoop(TorrentFile torrent_file) {
                         );
                     }
                 } catch (const std::exception& error) {
-                    Logger::LogUI(
+                    Logger::LogUi(
                         "Background tracker update error: " +
                         std::string(error.what())
                     );
                 }
             }
         } else if (active_connections >= 50) {
-            Logger::LogUI(
+            Logger::LogUi(
                 "Have " +
                 std::to_string(active_connections) +
                 " active connections, skipping tracker update"
             );
         } else {
-            Logger::LogUI(
+            Logger::LogUi(
                 "Have " +
                 std::to_string(known_peers) +
                 " known peers, enough in pool"

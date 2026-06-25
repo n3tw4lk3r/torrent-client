@@ -12,7 +12,7 @@ TorrentClient::TorrentClient() :
     random_engine(std::random_device()()),
     peer_id(kBaseSelfPeerId + GenerateRandomSuffix(kSelfPeerIdSuffixLength))
 {
-    Logger::LogUI("Torrent client initialized");
+    Logger::LogUi("Torrent client initialized");
 }
 
 TorrentClient::~TorrentClient() {

@@ -30,7 +30,7 @@ bool PeerConnector::ConnectToPeer(
 ) {
     size_t actual_connected = ActiveConnectionCount();
     if (actual_connected >= kMaxConnections) {
-        Logger::LogUI(
+        Logger::LogUi(
             "Max connections reached (" +
             std::to_string(actual_connected) +
             "/" +
@@ -112,7 +112,7 @@ void PeerConnector::DiscoveryLoop(TorrentFile torrent_file) {
 
             size_t to_connect = std::min(ready_peers.size(), available_slots);
 
-            Logger::LogUI(
+            Logger::LogUi(
                 "Trying to connect " +
                 std::to_string(to_connect) +
                 " new peers (slots available: " +
@@ -124,7 +124,7 @@ void PeerConnector::DiscoveryLoop(TorrentFile torrent_file) {
                 ConnectToPeer(ready_peers[i], torrent_file);
             }
         } else {
-            Logger::LogUI(
+            Logger::LogUi(
                 "Max connections reached (" +
                 std::to_string(actual_connected) +
                 "/" +

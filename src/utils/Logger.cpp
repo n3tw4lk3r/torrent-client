@@ -86,7 +86,7 @@ void Logger::AddMessageInternal(std::string_view message) {
     }
 }
 
-void Logger::LogUI(std::string_view message) {
+void Logger::LogUi(std::string_view message) {
     auto& logger = Instance();
 
     std::lock_guard<std::mutex> lock(logger.mutex);
