@@ -1,8 +1,9 @@
 #include "tracker/TrackerManager.hpp"
 
-#include <algorithm>
 #include <chrono>
+#include <fstream>
 #include <thread>
+#include <unordered_set>
 
 #include "peer/PeerConnector.hpp"
 #include "tracker/TrackerFactory.hpp"
@@ -13,13 +14,16 @@ namespace tclient {
 TrackerManager::TrackerManager(
     std::string_view self_peer_id,
     int listen_port,
-    PeerManager& peer_manager
+    PeerManager& peer_manager,
+    const std::filesystem::path& tracker_config_path
 ) :
     self_peer_id(self_peer_id),
     listen_port(listen_port),
     peer_manager(peer_manager),
     peer_connector(nullptr)
-{}
+{
+    LoadDefaultTrackersFromConfig(tracker_config_path);
+}
 
 TrackerManager::~TrackerManager() {
     Stop();
@@ -29,21 +33,69 @@ void TrackerManager::SetPeerConnector(PeerConnector* connector) {
     peer_connector = connector;
 }
 
+void TrackerManager::LoadDefaultTrackersFromConfig(
+    const std::filesystem::path& config_directory
+) {
+    try {
+        const std::filesystem::path tracker_config_path =
+            config_directory / "tracker-list.txt";
+        std::ifstream tracker_config_file(tracker_config_path);
+
+        if (!tracker_config_file) {
+            Logger::LogUi("Could not open tracker config file");
+            return;
+        }
+
+        std::string line;
+        while (std::getline(tracker_config_file, line)) {
+            if (line.empty()) {
+                continue;
+            }
+
+            if (!line.starts_with("http://") && !line.starts_with("udp://")) {
+                continue;
+            }
+
+            default_trackers.push_back(line);
+        }
+
+        Logger::LogUi(
+            "Loaded " +
+            std::to_string(default_trackers.size()) +
+            " trackers from config"
+        );
+
+        if (default_trackers.empty()) {
+            Logger::LogUi(
+                "Download may fail. Check tclient.log for instructions"
+            );
+            Logger::LogError(
+                "Check this file: " +
+                tracker_config_path.string() +
+                " (see README.md)"
+            );
+        }
+    } catch (const std::exception& error) {
+        Logger::LogUi("[TrackerManager]: " + std::string(error.what()));
+    }
+}
+
 std::vector<std::string> TrackerManager::CollectTrackerUrls(
     const TorrentFile& torrent_file
 ) {
     std::vector<std::string> urls;
-    urls.reserve(kDefaultTrackers.size() + 1);
+    std::unordered_set<std::string> seen;
+
     if (!torrent_file.announce.empty()) {
-        urls.push_back(torrent_file.announce);
+        seen.insert(torrent_file.announce);
     }
 
-    for (const auto& tracker : kDefaultTrackers) {
-        urls.emplace_back(tracker);
+    for (const auto& tracker : default_trackers) {
+        if (seen.insert(tracker).second) {
+            urls.push_back(tracker);
+        }
     }
 
-    std::sort(urls.begin(), urls.end());
-    urls.erase(std::unique(urls.begin(), urls.end()), urls.end());
     return urls;
 }
 
@@ -76,6 +128,10 @@ bool TrackerManager::TryAnnounceToTracker(
         return !peers.empty();
     } catch (const std::exception& error) {
         Logger::LogUi("Tracker " + std::string(url) + " error: " + error.what());
+        Logger::LogUi("If you keep receiving tracker errors,");
+        Logger::LogUi("try updating config/tracker-list.txt");
+        Logger::LogUi("with UDP trackers from here");
+        Logger::LogUi("https://github.com/ngosang/trackerslist");
         return false;
     }
 }

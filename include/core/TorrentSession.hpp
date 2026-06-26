@@ -26,6 +26,7 @@ public:
     TorrentSession(
         const std::filesystem::path& torrent_file_path,
         const std::filesystem::path& output_directory,
+        const std::filesystem::path& config_directory,
         std::string_view peer_id,
         int listen_port
     );
@@ -43,6 +44,8 @@ public:
     std::chrono::seconds ElapsedTime() const;
 
 private:
+    const std::filesystem::path kConfigDirectory;
+
     std::string peer_id;
     int listen_port;
     TorrentFile torrent_file;

@@ -12,9 +12,11 @@ namespace tclient {
 TorrentSession::TorrentSession(
     const std::filesystem::path& torrent_file_path,
     const std::filesystem::path& output_directory,
+    const std::filesystem::path& config_directory,
     std::string_view peer_id,
     int listen_port
 ) :
+    kConfigDirectory(config_directory),
     peer_id(peer_id),
     listen_port(listen_port)
 {
@@ -70,6 +72,7 @@ void TorrentSession::RunSession() {
 
     if (!tracker_manager->FetchInitialPeers(torrent_file)) {
         Logger::LogUi("No peers found, unable to start download");
+
         UpdateTaskStatus(TorrentStatus::kError);
         timer.Stop();
         CleanupComponents();
@@ -141,7 +144,9 @@ void TorrentSession::InitializeComponents(const TorrentFile& tf) {
     tracker_manager = std::make_unique<TrackerManager>(
         peer_id,
         listen_port,
-        peer_manager
+        peer_manager,
+        kConfigDirectory
+
     );
 
     peer_connector = std::make_unique<PeerConnector>(

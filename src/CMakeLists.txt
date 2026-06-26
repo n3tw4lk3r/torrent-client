@@ -66,6 +66,11 @@ target_compile_options(tclient
         -Wpedantic
 )
 
+target_compile_definitions(tclient
+    PRIVATE
+        PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+)
+
 install(TARGETS tclient
     DESTINATION bin
 )

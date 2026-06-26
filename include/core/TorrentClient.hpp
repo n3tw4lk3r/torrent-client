@@ -27,7 +27,8 @@ public:
 
     void DownloadTorrent(
         const std::filesystem::path& torrent_file_path,
-        const std::filesystem::path& output_directory
+        const std::filesystem::path& output_directory,
+        const std::filesystem::path& config_directory
     );
 
     const std::string& GetPeerId() const;

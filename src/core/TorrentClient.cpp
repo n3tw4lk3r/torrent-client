@@ -35,7 +35,8 @@ std::string TorrentClient::GenerateRandomSuffix(size_t length) {
 
 void TorrentClient::DownloadTorrent(
     const std::filesystem::path& torrent_file_path,
-    const std::filesystem::path& output_directory
+    const std::filesystem::path& output_directory,
+    const std::filesystem::path& config_directory
 ) {
     std::lock_guard<std::mutex> lock(session_mutex);
 
@@ -44,6 +45,7 @@ void TorrentClient::DownloadTorrent(
     active_session = std::make_unique<TorrentSession>(
         torrent_file_path,
         output_directory,
+        config_directory,
         peer_id,
         kListenPort
     );

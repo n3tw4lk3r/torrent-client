@@ -29,10 +29,25 @@ int main(int argc, char* argv[]) {
         std::filesystem::create_directories(output_directory);
     }
 
+    // Not exactly a good solution? I can't think of anything better
+    // See src/CMakeLists.txt for PROJECT_SOURCE_DIR definition
+    std::filesystem::path project_root = PROJECT_SOURCE_DIR;
+    std::filesystem::path config_directory = project_root / "config";
+
+    if (!std::filesystem::exists(config_directory)) {
+        Logger::LogUi(
+            "Config directory not found: " + config_directory.string()
+        );
+    }
+
     try {
         TorrentClient client;
 
-        client.DownloadTorrent(torrent_file_path, output_directory);
+        client.DownloadTorrent(
+            torrent_file_path,
+            output_directory,
+            config_directory
+        );
 
         TorrentUi torrent_ui(client);
         torrent_ui.Run();

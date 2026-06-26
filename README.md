@@ -7,6 +7,11 @@ No external libraries are required — all networking is implemented using plain
 
 This project originally started as a university assignment and is now being refactored and improved.
 
+## Notes
+
+- If you keep getting few or no peers, try updating `config/tracker-list.txt` with **UDP trackers list** from [here](https://github.com/ngosang/trackerslist).
+- It's best to use "fresh" torrent files. Note that only **single-file** torrents are supported.
+
 ## Screenshots
 
 <details>
