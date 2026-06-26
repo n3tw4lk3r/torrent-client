@@ -11,6 +11,7 @@ This project originally started as a university assignment and is now being refa
 
 - If you keep getting few or no peers, try updating `config/tracker-list.txt` with **UDP trackers list** from [here](https://github.com/ngosang/trackerslist).
 - It's best to use "fresh" torrent files. Note that only **single-file** torrents are supported.
+- Log file will be located inside `logs/`
 
 ## Screenshots
 
@@ -41,8 +42,6 @@ Requirements:
 - C++20-compatible compiler
 
 ```bash
-git clone https://github.com/ch1ldzero/tclient
-cd tclient
 mkdir build && cd build
 cmake ..
 cmake --build .
@@ -55,6 +54,8 @@ cmake --build .
 src/tclient <torrent-file> <output-directory>
 ```
 
+Log file `tclient.log` will appear inside `logs/`.
+
 ### Example
 
 ```bash
@@ -62,7 +63,6 @@ src/tclient <torrent-file> <output-directory>
 src/tclient ../resources/archlinux-2026.06.01-x86_64.iso.torrent downloads
 ```
 
-Log file `tclient.log` will appear inside `build/`.
 
 ## Architecture
 
@@ -100,3 +100,4 @@ Project structure:
 ### Someday
 - Multi-file torrent support
 - Seeding/upload support
+

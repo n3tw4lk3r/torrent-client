@@ -6,16 +6,24 @@
 
 namespace tclient {
 
+std::filesystem::path Logger::kLogPath =
+    std::filesystem::path(PROJECT_SOURCE_DIR) / "logs/tclient.log";
+
 Logger& Logger::Instance() {
     static Logger instance;
     return instance;
 }
 
 Logger::Logger() {
-    log_file.open(kLogFilename, std::ios::trunc);
+    if (!std::filesystem::exists(kLogPath)) {
+        std::filesystem::create_directory(kLogPath.parent_path());
+    }
+
+    log_file.open(kLogPath, std::ios::trunc);
 
     if (!log_file.is_open()) {
-        std::cerr << "Failed to open log file: " << kLogFilename << std::endl;
+        std::cerr << "Failed to open log file: " << kLogPath << std::endl;
+        exit(0);
     }
 }
 

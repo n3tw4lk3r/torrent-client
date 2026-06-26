@@ -1,6 +1,7 @@
 .cache/
 build/
 downloads/
+logs/
 *.o
 *.a
 *.so

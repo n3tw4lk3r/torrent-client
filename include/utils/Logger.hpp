@@ -4,6 +4,7 @@
 #include <mutex>
 #include <string>
 #include <string_view>
+#include <filesystem>
 #include <vector>
 
 namespace tclient {
@@ -29,7 +30,7 @@ private:
 private:
     static constexpr size_t kMaxMessages = 1'000;
     static constexpr size_t kTrimCount = 500;
-    static constexpr std::string kLogFilename = "tclient.log";
+    static std::filesystem::path kLogPath;
 
     std::mutex mutex;
     std::vector<std::string> messages;

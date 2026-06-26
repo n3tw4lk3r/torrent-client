@@ -41,6 +41,11 @@ target_include_directories(tclient_lib
         ${PROJECT_SOURCE_DIR}/include
 )
 
+target_compile_definitions(tclient_lib
+    PRIVATE
+        PROJECT_SOURCE_DIR="${PROJECT_SOURCE_DIR}"
+)
+
 add_executable(tclient
     main.cpp
     ui/TorrentUi.cpp
